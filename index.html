@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attacker Panel RGB</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@600;800&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+    font-family: 'Vazirmatn', sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at top, #050b18, #000);
+    overflow: hidden;
+    color: #cfffff;
+}
+
+canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+/* RGB Glow */
+body::after {
+    content: "";
+    position: absolute;
+    inset: -50%;
+    background: conic-gradient(from 0deg, red, cyan, lime, magenta, red);
+    animation: rgbSpin 18s linear infinite;
+    opacity: 0.15;
+    filter: blur(120px);
+}
+
+@keyframes rgbSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* Avatar */
+.avatar {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid #00f0ff;
+    box-shadow: 0 0 15px rgba(0,255,255,0.9);
+    object-fit: cover;
+    z-index: 3;
+    display: none;
+}
+
+.container {
+    width: min(420px, 92vw);
+    padding: 32px;
+    background: linear-gradient(160deg, rgba(5,15,35,0.9), rgba(0,0,0,0.95));
+    border-radius: 22px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+    box-shadow:
+        0 0 30px rgba(0,255,255,0.35),
+        0 0 60px rgba(255,0,120,0.25),
+        inset 0 0 18px rgba(0,255,255,0.15);
+    animation: fadeIn 1.2s ease;
+}
+
+h1 {
+    margin-bottom: 10px;
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(90deg, #00f0ff, #ff4da6, #7CFF00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 22px rgba(0,255,255,0.9);
+}
+
+.username {
+    font-size: 15px;
+    margin-bottom: 28px;
+    color: #cfffff;
+    text-shadow: 0 0 10px #00f0ff;
+}
+
+.buttons {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.btn {
+    flex: 1;
+    padding: 16px;
+    border-radius: 16px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 700;
+    color: #021015;
+    position: relative;
+    overflow: hidden;
+    transition: 0.4s ease;
+}
+
+.btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
+    transform: translateX(-120%);
+    transition: 0.6s;
+}
+
+.btn:hover::before {
+    transform: translateX(120%);
+}
+
+.btn-left {
+    background: linear-gradient(135deg, #00f0ff, #00bcd4);
+    box-shadow: 0 0 25px rgba(0,240,255,0.9);
+}
+
+.btn-right {
+    background: linear-gradient(135deg, #ff0077, #ff4da6);
+    box-shadow: 0 0 25px rgba(255,0,120,0.9);
+}
+
+.btn:hover {
+    transform: scale(1.08);
+}
+
+.footer {
+    font-size: 14px;
+    font-weight: 600;
+    color: #cfffff;
+    text-shadow: 0 0 10px #00f0ff;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+
+<body>
+
+<img id="avatar" class="avatar">
+<canvas id="particles"></canvas>
+
+<div class="container">
+    <h1>ربات اتکرساز</h1>
+    <div class="username" id="username">خوش اومدی ❤️</div>
+
+    <div class="buttons">
+        <a class="btn btn-left" href="https://t.me/ataksazbot">ربات اتکرساز</a>
+        <a class="btn btn-right" href="https://t.me/AttackerFreeBot">ربات اتکرایت</a>
+    </div>
+
+    <div class="footer">اتکرساز رایگان بدون بن</div>
+</div>
+
+<script>
+/* Telegram User Info */
+if (window.Telegram && Telegram.WebApp) {
+    const tg = Telegram.WebApp;
+    tg.ready();
+
+    const user = tg.initDataUnsafe.user;
+    if (user) {
+        document.getElementById("username").innerText =
+            "خوش اومدی ❤️ " + (user.first_name || "");
+
+        if (user.photo_url) {
+            const avatar = document.getElementById("avatar");
+            avatar.src = user.photo_url;
+            avatar.style.display = "block";
+        }
+    }
+}
+</script>
+
+<script>
+/* Particles */
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let w, h;
+
+function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+const particles = [];
+for (let i = 0; i < 70; i++) {
+    particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+    });
+}
+
+function draw() {
+    ctx.clearRect(0, 0, w, h);
+    for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = '#00f0ff';
+        ctx.fill();
+    }
+    requestAnimationFrame(draw);
+}
+draw();
+</script>
+
+</body>
+</html>
